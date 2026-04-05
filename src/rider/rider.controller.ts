@@ -10,7 +10,7 @@ export class RiderController{
     constructor(private readonly riderService: RiderService) {}
 
     @Post('create')
-    @UsePipes(new ValidationPipe({whitelist: true}))
+    @UsePipes(new ValidationPipe())
     createRider(@Body() createRiderDto: CreateRiderDto): object{
         return this.riderService.createRider(createRiderDto);
     }
@@ -26,7 +26,7 @@ export class RiderController{
     }
 
     @Put('update/:id')
-    @UsePipes(new ValidationPipe({ whitelist: true }))
+    @UsePipes(new ValidationPipe())
     updateRider(
         @Param('id', ParseIntPipe) riderId: number,
         @Body() updateRiderDto: UpdateRiderDto
@@ -35,7 +35,7 @@ export class RiderController{
     }
 
     @Patch('status/:id')
-    @UsePipes(new ValidationPipe({ whitelist: true }))
+    @UsePipes(new ValidationPipe())
     updateRiderStatus(
         @Param('id', ParseIntPipe) riderId: number,
         @Body() riderStatusDto: RiderStatusDto
@@ -49,7 +49,7 @@ export class RiderController{
     }
 
     @Post('assign-delivery')
-    @UsePipes(new ValidationPipe({ whitelist: true }))
+    @UsePipes(new ValidationPipe())
     assignDelivery(@Body() assignDeliveryDto: AssignDeliveryDto): object {
         return this.riderService.assignDelivery(assignDeliveryDto);
     }
