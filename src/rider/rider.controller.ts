@@ -1,8 +1,10 @@
-import { Controller, Get, Param, Query, Post, Body, Put, Patch, Delete, UsePipes,  UseInterceptors, UploadedFile, ValidationPipe, ParseIntPipe} from "@nestjs/common";
+import { Controller, Get, Param, Query, Post, Body, Put, Patch, Delete, UsePipes,  UseInterceptors, UploadedFile, ValidationPipe, ParseIntPipe, UseGuards} from "@nestjs/common";
 import { FileInterceptor } from "@nestjs/platform-express"; 
 import { MulterError, diskStorage } from "multer";
 import { RiderService } from "./rider.service";
 import { UpdateRiderDto, CreateRiderDto, RiderStatusDto, AssignDeliveryDto,  } from './rider.dto';
+import { RiderGuard } from "./rider.guard";
+import { AuthGuard } from "../auth/auth.guard";
 
 
 @Controller("rider")
@@ -11,46 +13,52 @@ export class RiderController{
 
     @Post('create')
     @UsePipes(new ValidationPipe())
-    createRider(@Body() createRiderDto: CreateRiderDto): object{
+    async createRider(@Body() createRiderDto: CreateRiderDto): Promise<object>{
         return this.riderService.createRider(createRiderDto);
     }
    
+    @UseGuards(AuthGuard, RiderGuard)
     @Get('all')
-    getAllRiders(): object {
+    async getAllRiders(): Promise<object> {
         return this.riderService.getAllRiders();
     }
 
+    @UseGuards(AuthGuard, RiderGuard)
     @Get(':id')
-    getRiderById(@Param('id', ParseIntPipe) riderId: number): object {
+    async getRiderById(@Param('id', ParseIntPipe) riderId: number): Promise<object> {
         return this.riderService.getRiderById(riderId);
     }
 
+    @UseGuards(AuthGuard, RiderGuard)
     @Put('update/:id')
     @UsePipes(new ValidationPipe())
-    updateRider(
+    async updateRider(
         @Param('id', ParseIntPipe) riderId: number,
         @Body() updateRiderDto: UpdateRiderDto
-    ): object {
+    ): Promise<object> {
         return this.riderService.updateRider(riderId, updateRiderDto);
     }
 
+    @UseGuards(AuthGuard, RiderGuard)
     @Patch('status/:id')
     @UsePipes(new ValidationPipe())
-    updateRiderStatus(
+    async updateRiderStatus(
         @Param('id', ParseIntPipe) riderId: number,
         @Body() riderStatusDto: RiderStatusDto
-    ): object {
+    ): Promise<object> {
         return this.riderService.updateRiderStatus(riderId, riderStatusDto);
     }
 
+    @UseGuards(AuthGuard, RiderGuard)
     @Delete('delete/:id')
-    deleteRider(@Param('id', ParseIntPipe) riderId: number): object {
+    async deleteRider(@Param('id', ParseIntPipe) riderId: number): Promise<object> {
         return this.riderService.deleteRider(riderId);
     }
 
+    @UseGuards(AuthGuard, RiderGuard)
     @Post('assign-delivery')
     @UsePipes(new ValidationPipe())
-    assignDelivery(@Body() assignDeliveryDto: AssignDeliveryDto): object {
+    async assignDelivery(@Body() assignDeliveryDto: AssignDeliveryDto): Promise<object> {
         return this.riderService.assignDelivery(assignDeliveryDto);
     }
 
