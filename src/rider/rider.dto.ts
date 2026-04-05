@@ -1,44 +1,63 @@
-import { IsEmail, IsIn, IsNotEmpty, IsString, Matches, MinLength } from "class-validator";
+import { IsEmail, IsIn, IsNumber, IsBoolean, IsNotEmpty, IsNumberString, IsOptional, IsString, Length, Matches, MaxLength, MinLength } from "class-validator";
 
-export class CreateRiderDto{
+export class CreateRiderDto {
+    @IsNotEmpty()
+    @IsString()
+    name!: string;
+
     @IsNotEmpty()
     @IsEmail()
-    @Matches(/@aiub\.edu$/,{message: "Email must contain aiub.edu domain"})
-    email: string;
+    email!: string;
 
-    @IsNotEmpty()
+    @IsString()
     @MinLength(6)
-    @Matches(/[A-Z]/,{message: "Password must contain at least one uppercase letter"})
-    password:string;
+    @MaxLength(32)
+    password!: string;
 
-    @IsNotEmpty()
-    @IsIn(['male', 'female'],{message: "invalid Gender must be male or female"})
-    gender: string;
+    @Matches(/^(?:\+88)?01[0-9]{9}$/, {
+        message: 'Invalid Bangladesh phone number',
+    })
+    phone!: string;
+
+    @IsNumberString()
+    @Length(10, 17)
+    riderNid!: string;
+
+    @IsOptional()
+    @Matches(/^(?:\+88)?01[0-9]{9}$/, {
+        message: 'Invalid Bangladesh phone number',
+    })
+    bkashAccount?: string;
+
+    @IsOptional()
+    @IsNumberString()
+    @MinLength(10)
+    bankAccount?: string;
 }
 
 export class UpdateRiderDto {
    
-    riderName: string;
-
     @IsNotEmpty()
-    @Matches(/^[0-9]+$/, {message: "Phone number must contain only numbers"})
-    phone: string;
+    @IsString()
+    name!: string;
+
+    @Matches(/^(?:\+88)?01[0-9]{9}$/, {
+        message: 'Invalid Bangladesh phone number',
+    })
+    phone!: string;
 }
 
 export class RiderStatusDto {
-    isOnline: boolean;
+     @IsOptional()
+    @IsBoolean()
+    isOnline?: boolean;
+}
+export class AssignDeliveryDto {
+    @IsNotEmpty() riderId!: number;
+    @IsNotEmpty() deliveryId!: number;
 }
 
-export class AcceptDeliveryDto {
-    
-    riderDeliveryTime: number;
-}
 
-export class CompleteDeliveryDto {
-    otp: number;
-}
+/////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////
 
-export class WithdrawRequestDto {
-    amount: number;
-    method: string;
-}
