@@ -24,32 +24,50 @@ export class RiderService{
     ){}
 
     //creating
-    async createRider(createRiderDto: CreateRiderDto): Promise<object>{
-        const existingUser = await this.userRepository.findOne({ where: { email: createRiderDto.email } });
-        if (existingUser) throw new ConflictException('Email already exists');
+    async checkUserExist(email: string): Promise<boolean> {
+        const foundEmail = await this.userRepository.findOne({
+            where: {email: email},
+        });
+        return Boolean(foundEmail);
+    }
+    async createRider(createRiderDto: CreateRiderDto): Promise<object> {
+    
+    
+    const userExist = await this.checkUserExist(createRiderDto.email);
+    if (userExist) {
+        throw new ConflictException('Email already exists');
+    }
 
-        const hashedPassword = await bcrypt.hash(createRiderDto.password, 10);
+    
+    const salt = await bcrypt.genSalt();
+    const hashedPassword = await bcrypt.hash(createRiderDto.password, salt);
 
-        const user = this.userRepository.create({
+    
+    const rider = await this.riderRepository.save({
+        user: {
             name: createRiderDto.name,
             email: createRiderDto.email,
             password: hashedPassword,
-            role: UserRoles.RIDER
-        });
+            role: UserRoles.RIDER, 
+        },
+        phone: createRiderDto.phone,
+        riderNid: createRiderDto.riderNid,
+        bkashAccount: createRiderDto.bkashAccount,
+        bankAccount: createRiderDto.bankAccount,
+        isOnline: false, 
+    });
 
-        const rider = this.riderRepository.create({
-            user,
-            phone: createRiderDto.phone,
-            riderNid: createRiderDto.riderNid,
-            bkashAccount: createRiderDto.bkashAccount,
-            bankAccount: createRiderDto.bankAccount,
-            isOnline: false
-        });
+    
+    const { password, ...userWithoutPassword } = rider.user;
+    const output = { ...rider, user: userWithoutPassword };
 
-        await this.riderRepository.save(rider);
-        return {message: 'Rider created successfully',rider};
-    }
-
+    
+    return {
+        success: true,
+        message: `Rider ${rider.user.name} created successfully`,
+        data: output,
+    };
+}
     // -------- GET ALL RIDERS --------
     async getAllRiders(): Promise<object> {
         const riders = await this.riderRepository.find({ relations: ['user', 'deliveries'] });
